@@ -1,0 +1,41 @@
+#!/usr/bin/env node
+
+var command = require('../lib/command')();
+var argv = require('optimist').argv;
+var extra = argv._;
+
+if (extra) {
+    if (extra.length >= 2) {
+        let chain = argv["chain"];
+        process.env.CURRENT_CHAIN = chain;
+        command.init()
+
+        let p0 = extra[0];
+        let p1 = extra[1];
+
+        if (p0 == "deps") {
+            let m = get_command("deps");
+            m.deps_init()
+        } else if (p0 == "move" && p1 == "build") {
+            let m = get_command("move");
+            m.move_build_test()
+        } else if (p0 == "gen" && p1 == "test") {
+            let m = get_command("gen");
+            m.gen_test()
+        }
+    }
+}
+
+function get_command(comd) {
+    let m = command.get_command(comd);
+    if (m) {
+        var _command;
+        if (m.__esModule) {
+            _command = m.default();
+        } else {
+            _command = m();
+        }
+
+        return _command;
+    }
+}

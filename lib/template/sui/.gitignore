@@ -1,0 +1,9 @@
+dist
+deps
+build
+.idea
+traces
+.tests
+.deepmove
+node_modules
+.env
