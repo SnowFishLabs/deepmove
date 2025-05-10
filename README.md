@@ -2,6 +2,19 @@
 
 DeepMove is a smart contract development toolchain for Move Developers.
 
+## Core Features
+* Run move locally
+wasm based move vm runtime, so you can easily test your move code locally
+* Professional move development toolchain
+deepmove manages your dependencies, builds your project, runs tests, publish and upgrade contracts
+* Auto Generation Framework
+deepauto generated test function bindings, ptb function bindings, bcs serialization schema into typescript class objects.
+* Support Move based blockchains
+support sui and aptos, so you can develop move dapp with same experiences
+* Debugging Move
+deepmove is the best choice for move debugging. You get move trace debugger, move vm error with source code mapping
+* Production Ready
+deepmove passes all feature coverage tests
 
 ## License
 
