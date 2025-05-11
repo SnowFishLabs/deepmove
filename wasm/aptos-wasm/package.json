@@ -1,6 +1,6 @@
 {
   "name": "@deepmove/aptos",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "files": [
     "dist"
   ],
@@ -14,6 +14,7 @@
     }
   },
   "dependencies": {
+    "yaml": "^2.7.1",
     "vitest": "^3.0.8",
     "dotenv": "^16.5.0",
     "shelljs": "^0.10.0",
@@ -22,7 +23,8 @@
     "cli-table3": "^0.6.5",
     "@mysten/bcs": "^1.6.0",
     "js-beautify": "^1.15.1",
-    "read-dir-deep": "^8.0.0"
+    "read-dir-deep": "^8.0.0",
+    "@aptos-labs/ts-sdk": "^1.38.0"
   },
   "devDependencies": {
     "typescript": "^5.7.2",
