@@ -1,5 +1,5 @@
 import { readDirDeepSync } from 'read-dir-deep';
-import { fromHex } from '@mysten/sui/utils';
+import { fromHex } from '@mysten/bcs';
 import { parse } from 'smol-toml';
 import fs from 'fs-extra';
 

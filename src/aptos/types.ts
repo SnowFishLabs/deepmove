@@ -1,5 +1,4 @@
-import { bcs } from "@mysten/sui/bcs";
-import { fromHex, toHex } from "@mysten/sui/utils";
+import { bcs, fromHex, toHex } from "@mysten/bcs";
 import { get_wasm } from "./aptos_wasm";
 
 export type Network = 'mainnet' | 'testnet' | 'devnet' | 'localnet';

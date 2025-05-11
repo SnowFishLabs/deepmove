@@ -1,5 +1,6 @@
-import { bcs, fromHex } from "@mysten/bcs";
+import { fromHex } from "@mysten/sui/utils";
 import { StructClass } from "./sui_wasm";
+import { bcs } from "@mysten/sui/bcs";
 
 export function hexToNumArray(x: string) {
     return Array.from(fromHex(x))

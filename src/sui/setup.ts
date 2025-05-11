@@ -1,6 +1,6 @@
 import { get_move_code_helper, get_move_gen } from './sui_wasm';
 import { readDirDeepSync } from 'read-dir-deep';
-import { fromBase64 } from '@mysten/bcs';
+import { fromBase64 } from '@mysten/sui/utils';
 import { parse } from 'smol-toml';
 import fs from 'fs-extra';
 

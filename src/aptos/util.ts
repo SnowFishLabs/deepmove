@@ -1,6 +1,5 @@
 import { StructClass } from "./aptos_wasm";
-import { fromHex } from '@mysten/bcs';
-import { bcs } from "@mysten/bcs";
+import { fromHex, bcs } from '@mysten/bcs';
 
 export function hexToNumArray(x: string) {
     return Array.from(fromHex(x))

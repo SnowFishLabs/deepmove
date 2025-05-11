@@ -6232,1219 +6232,9 @@ function update_deps_toml(deps_toml_path, deps_std) {
   }
 }
 
-// node_modules/@scure/base/lib/esm/index.js
-function isBytes(a) {
-  return a instanceof Uint8Array || ArrayBuffer.isView(a) && a.constructor.name === "Uint8Array";
-}
-function isArrayOf(isString, arr) {
-  if (!Array.isArray(arr))
-    return false;
-  if (arr.length === 0)
-    return true;
-  if (isString) {
-    return arr.every((item) => typeof item === "string");
-  } else {
-    return arr.every((item) => Number.isSafeInteger(item));
-  }
-}
-function astr(label, input) {
-  if (typeof input !== "string")
-    throw new Error(`${label}: string expected`);
-  return true;
-}
-function anumber(n) {
-  if (!Number.isSafeInteger(n))
-    throw new Error(`invalid integer: ${n}`);
-}
-function aArr(input) {
-  if (!Array.isArray(input))
-    throw new Error("array expected");
-}
-function astrArr(label, input) {
-  if (!isArrayOf(true, input))
-    throw new Error(`${label}: array of strings expected`);
-}
-function anumArr(label, input) {
-  if (!isArrayOf(false, input))
-    throw new Error(`${label}: array of numbers expected`);
-}
-// @__NO_SIDE_EFFECTS__
-function chain(...args) {
-  const id = (a) => a;
-  const wrap = (a, b) => (c) => a(b(c));
-  const encode = args.map((x) => x.encode).reduceRight(wrap, id);
-  const decode = args.map((x) => x.decode).reduce(wrap, id);
-  return { encode, decode };
-}
-// @__NO_SIDE_EFFECTS__
-function alphabet(letters) {
-  const lettersA = typeof letters === "string" ? letters.split("") : letters;
-  const len = lettersA.length;
-  astrArr("alphabet", lettersA);
-  const indexes = new Map(lettersA.map((l, i) => [l, i]));
-  return {
-    encode: (digits) => {
-      aArr(digits);
-      return digits.map((i) => {
-        if (!Number.isSafeInteger(i) || i < 0 || i >= len)
-          throw new Error(`alphabet.encode: digit index outside alphabet "${i}". Allowed: ${letters}`);
-        return lettersA[i];
-      });
-    },
-    decode: (input) => {
-      aArr(input);
-      return input.map((letter) => {
-        astr("alphabet.decode", letter);
-        const i = indexes.get(letter);
-        if (i === void 0)
-          throw new Error(`Unknown letter: "${letter}". Allowed: ${letters}`);
-        return i;
-      });
-    }
-  };
-}
-// @__NO_SIDE_EFFECTS__
-function join(separator = "") {
-  astr("join", separator);
-  return {
-    encode: (from) => {
-      astrArr("join.decode", from);
-      return from.join(separator);
-    },
-    decode: (to) => {
-      astr("join.decode", to);
-      return to.split(separator);
-    }
-  };
-}
-function convertRadix(data, from, to) {
-  if (from < 2)
-    throw new Error(`convertRadix: invalid from=${from}, base cannot be less than 2`);
-  if (to < 2)
-    throw new Error(`convertRadix: invalid to=${to}, base cannot be less than 2`);
-  aArr(data);
-  if (!data.length)
-    return [];
-  let pos = 0;
-  const res = [];
-  const digits = Array.from(data, (d) => {
-    anumber(d);
-    if (d < 0 || d >= from)
-      throw new Error(`invalid integer: ${d}`);
-    return d;
-  });
-  const dlen = digits.length;
-  while (true) {
-    let carry = 0;
-    let done = true;
-    for (let i = pos; i < dlen; i++) {
-      const digit = digits[i];
-      const fromCarry = from * carry;
-      const digitBase = fromCarry + digit;
-      if (!Number.isSafeInteger(digitBase) || fromCarry / from !== carry || digitBase - digit !== fromCarry) {
-        throw new Error("convertRadix: carry overflow");
-      }
-      const div = digitBase / to;
-      carry = digitBase % to;
-      const rounded = Math.floor(div);
-      digits[i] = rounded;
-      if (!Number.isSafeInteger(rounded) || rounded * to + carry !== digitBase)
-        throw new Error("convertRadix: carry overflow");
-      if (!done)
-        continue;
-      else if (!rounded)
-        pos = i;
-      else
-        done = false;
-    }
-    res.push(carry);
-    if (done)
-      break;
-  }
-  for (let i = 0; i < data.length - 1 && data[i] === 0; i++)
-    res.push(0);
-  return res.reverse();
-}
-// @__NO_SIDE_EFFECTS__
-function radix(num) {
-  anumber(num);
-  const _256 = 2 ** 8;
-  return {
-    encode: (bytes2) => {
-      if (!isBytes(bytes2))
-        throw new Error("radix.encode input should be Uint8Array");
-      return convertRadix(Array.from(bytes2), _256, num);
-    },
-    decode: (digits) => {
-      anumArr("radix.decode", digits);
-      return Uint8Array.from(convertRadix(digits, num, _256));
-    }
-  };
-}
-var genBase58 = /* @__NO_SIDE_EFFECTS__ */ (abc) => /* @__PURE__ */ chain(/* @__PURE__ */ radix(58), /* @__PURE__ */ alphabet(abc), /* @__PURE__ */ join(""));
-var base58 = /* @__PURE__ */ genBase58("123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz");
-
-// node_modules/@mysten/utils/dist/esm/b58.js
-var toBase58 = (buffer) => base58.encode(buffer);
-var fromBase58 = (str) => base58.decode(str);
-
-// node_modules/@mysten/utils/dist/esm/b64.js
-function fromBase64(base64String) {
-  return Uint8Array.from(atob(base64String), (char) => char.charCodeAt(0));
-}
-var CHUNK_SIZE = 8192;
-function toBase64(bytes2) {
-  if (bytes2.length < CHUNK_SIZE) {
-    return btoa(String.fromCharCode(...bytes2));
-  }
-  let output = "";
-  for (var i = 0; i < bytes2.length; i += CHUNK_SIZE) {
-    const chunk = bytes2.slice(i, i + CHUNK_SIZE);
-    output += String.fromCharCode(...chunk);
-  }
-  return btoa(output);
-}
-
-// node_modules/@mysten/utils/dist/esm/hex.js
-function fromHex(hexStr) {
-  const normalized = hexStr.startsWith("0x") ? hexStr.slice(2) : hexStr;
-  const padded = normalized.length % 2 === 0 ? normalized : `0${normalized}`;
-  const intArr = padded.match(/[0-9a-fA-F]{2}/g)?.map((byte) => parseInt(byte, 16)) ?? [];
-  if (intArr.length !== padded.length / 2) {
-    throw new Error(`Invalid hex string ${hexStr}`);
-  }
-  return Uint8Array.from(intArr);
-}
-function toHex(bytes2) {
-  return bytes2.reduce((str, byte) => str + byte.toString(16).padStart(2, "0"), "");
-}
-
-// node_modules/@mysten/bcs/dist/esm/uleb.js
-function ulebEncode(num) {
-  const arr = [];
-  let len = 0;
-  if (num === 0) {
-    return [0];
-  }
-  while (num > 0) {
-    arr[len] = num & 127;
-    if (num >>= 7) {
-      arr[len] |= 128;
-    }
-    len += 1;
-  }
-  return arr;
-}
-function ulebDecode(arr) {
-  let total = 0;
-  let shift = 0;
-  let len = 0;
-  while (true) {
-    const byte = arr[len];
-    len += 1;
-    total |= (byte & 127) << shift;
-    if ((byte & 128) === 0) {
-      break;
-    }
-    shift += 7;
-  }
-  return {
-    value: total,
-    length: len
-  };
-}
-
-// node_modules/@mysten/bcs/dist/esm/reader.js
-var BcsReader = class {
-  /**
-   * @param {Uint8Array} data Data to use as a buffer.
-   */
-  constructor(data) {
-    this.bytePosition = 0;
-    this.dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
-  }
-  /**
-   * Shift current cursor position by `bytes`.
-   *
-   * @param {Number} bytes Number of bytes to
-   * @returns {this} Self for possible chaining.
-   */
-  shift(bytes2) {
-    this.bytePosition += bytes2;
-    return this;
-  }
-  /**
-   * Read U8 value from the buffer and shift cursor by 1.
-   * @returns
-   */
-  read8() {
-    const value = this.dataView.getUint8(this.bytePosition);
-    this.shift(1);
-    return value;
-  }
-  /**
-   * Read U16 value from the buffer and shift cursor by 2.
-   * @returns
-   */
-  read16() {
-    const value = this.dataView.getUint16(this.bytePosition, true);
-    this.shift(2);
-    return value;
-  }
-  /**
-   * Read U32 value from the buffer and shift cursor by 4.
-   * @returns
-   */
-  read32() {
-    const value = this.dataView.getUint32(this.bytePosition, true);
-    this.shift(4);
-    return value;
-  }
-  /**
-   * Read U64 value from the buffer and shift cursor by 8.
-   * @returns
-   */
-  read64() {
-    const value1 = this.read32();
-    const value2 = this.read32();
-    const result = value2.toString(16) + value1.toString(16).padStart(8, "0");
-    return BigInt("0x" + result).toString(10);
-  }
-  /**
-   * Read U128 value from the buffer and shift cursor by 16.
-   */
-  read128() {
-    const value1 = BigInt(this.read64());
-    const value2 = BigInt(this.read64());
-    const result = value2.toString(16) + value1.toString(16).padStart(16, "0");
-    return BigInt("0x" + result).toString(10);
-  }
-  /**
-   * Read U128 value from the buffer and shift cursor by 32.
-   * @returns
-   */
-  read256() {
-    const value1 = BigInt(this.read128());
-    const value2 = BigInt(this.read128());
-    const result = value2.toString(16) + value1.toString(16).padStart(32, "0");
-    return BigInt("0x" + result).toString(10);
-  }
-  /**
-   * Read `num` number of bytes from the buffer and shift cursor by `num`.
-   * @param num Number of bytes to read.
-   */
-  readBytes(num) {
-    const start = this.bytePosition + this.dataView.byteOffset;
-    const value = new Uint8Array(this.dataView.buffer, start, num);
-    this.shift(num);
-    return value;
-  }
-  /**
-   * Read ULEB value - an integer of varying size. Used for enum indexes and
-   * vector lengths.
-   * @returns {Number} The ULEB value.
-   */
-  readULEB() {
-    const start = this.bytePosition + this.dataView.byteOffset;
-    const buffer = new Uint8Array(this.dataView.buffer, start);
-    const { value, length } = ulebDecode(buffer);
-    this.shift(length);
-    return value;
-  }
-  /**
-   * Read a BCS vector: read a length and then apply function `cb` X times
-   * where X is the length of the vector, defined as ULEB in BCS bytes.
-   * @param cb Callback to process elements of vector.
-   * @returns {Array<Any>} Array of the resulting values, returned by callback.
-   */
-  readVec(cb) {
-    const length = this.readULEB();
-    const result = [];
-    for (let i = 0; i < length; i++) {
-      result.push(cb(this, i, length));
-    }
-    return result;
-  }
-};
-
-// node_modules/@mysten/bcs/dist/esm/utils.js
-function encodeStr(data, encoding) {
-  switch (encoding) {
-    case "base58":
-      return toBase58(data);
-    case "base64":
-      return toBase64(data);
-    case "hex":
-      return toHex(data);
-    default:
-      throw new Error("Unsupported encoding, supported values are: base64, hex");
-  }
-}
-
-// node_modules/@mysten/bcs/dist/esm/writer.js
-var BcsWriter = class {
-  constructor({
-    initialSize = 1024,
-    maxSize = Infinity,
-    allocateSize = 1024
-  } = {}) {
-    this.bytePosition = 0;
-    this.size = initialSize;
-    this.maxSize = maxSize;
-    this.allocateSize = allocateSize;
-    this.dataView = new DataView(new ArrayBuffer(initialSize));
-  }
-  ensureSizeOrGrow(bytes2) {
-    const requiredSize = this.bytePosition + bytes2;
-    if (requiredSize > this.size) {
-      const nextSize = Math.min(this.maxSize, this.size + this.allocateSize);
-      if (requiredSize > nextSize) {
-        throw new Error(
-          `Attempting to serialize to BCS, but buffer does not have enough size. Allocated size: ${this.size}, Max size: ${this.maxSize}, Required size: ${requiredSize}`
-        );
-      }
-      this.size = nextSize;
-      const nextBuffer = new ArrayBuffer(this.size);
-      new Uint8Array(nextBuffer).set(new Uint8Array(this.dataView.buffer));
-      this.dataView = new DataView(nextBuffer);
-    }
-  }
-  /**
-   * Shift current cursor position by `bytes`.
-   *
-   * @param {Number} bytes Number of bytes to
-   * @returns {this} Self for possible chaining.
-   */
-  shift(bytes2) {
-    this.bytePosition += bytes2;
-    return this;
-  }
-  /**
-   * Write a U8 value into a buffer and shift cursor position by 1.
-   * @param {Number} value Value to write.
-   * @returns {this}
-   */
-  write8(value) {
-    this.ensureSizeOrGrow(1);
-    this.dataView.setUint8(this.bytePosition, Number(value));
-    return this.shift(1);
-  }
-  /**
-   * Write a U16 value into a buffer and shift cursor position by 2.
-   * @param {Number} value Value to write.
-   * @returns {this}
-   */
-  write16(value) {
-    this.ensureSizeOrGrow(2);
-    this.dataView.setUint16(this.bytePosition, Number(value), true);
-    return this.shift(2);
-  }
-  /**
-   * Write a U32 value into a buffer and shift cursor position by 4.
-   * @param {Number} value Value to write.
-   * @returns {this}
-   */
-  write32(value) {
-    this.ensureSizeOrGrow(4);
-    this.dataView.setUint32(this.bytePosition, Number(value), true);
-    return this.shift(4);
-  }
-  /**
-   * Write a U64 value into a buffer and shift cursor position by 8.
-   * @param {bigint} value Value to write.
-   * @returns {this}
-   */
-  write64(value) {
-    toLittleEndian(BigInt(value), 8).forEach((el) => this.write8(el));
-    return this;
-  }
-  /**
-   * Write a U128 value into a buffer and shift cursor position by 16.
-   *
-   * @param {bigint} value Value to write.
-   * @returns {this}
-   */
-  write128(value) {
-    toLittleEndian(BigInt(value), 16).forEach((el) => this.write8(el));
-    return this;
-  }
-  /**
-   * Write a U256 value into a buffer and shift cursor position by 16.
-   *
-   * @param {bigint} value Value to write.
-   * @returns {this}
-   */
-  write256(value) {
-    toLittleEndian(BigInt(value), 32).forEach((el) => this.write8(el));
-    return this;
-  }
-  /**
-   * Write a ULEB value into a buffer and shift cursor position by number of bytes
-   * written.
-   * @param {Number} value Value to write.
-   * @returns {this}
-   */
-  writeULEB(value) {
-    ulebEncode(value).forEach((el) => this.write8(el));
-    return this;
-  }
-  /**
-   * Write a vector into a buffer by first writing the vector length and then calling
-   * a callback on each passed value.
-   *
-   * @param {Array<Any>} vector Array of elements to write.
-   * @param {WriteVecCb} cb Callback to call on each element of the vector.
-   * @returns {this}
-   */
-  writeVec(vector, cb) {
-    this.writeULEB(vector.length);
-    Array.from(vector).forEach((el, i) => cb(this, el, i, vector.length));
-    return this;
-  }
-  /**
-   * Adds support for iterations over the object.
-   * @returns {Uint8Array}
-   */
-  *[Symbol.iterator]() {
-    for (let i = 0; i < this.bytePosition; i++) {
-      yield this.dataView.getUint8(i);
-    }
-    return this.toBytes();
-  }
-  /**
-   * Get underlying buffer taking only value bytes (in case initial buffer size was bigger).
-   * @returns {Uint8Array} Resulting bcs.
-   */
-  toBytes() {
-    return new Uint8Array(this.dataView.buffer.slice(0, this.bytePosition));
-  }
-  /**
-   * Represent data as 'hex' or 'base64'
-   * @param encoding Encoding to use: 'base64' or 'hex'
-   */
-  toString(encoding) {
-    return encodeStr(this.toBytes(), encoding);
-  }
-};
-function toLittleEndian(bigint, size) {
-  const result = new Uint8Array(size);
-  let i = 0;
-  while (bigint > 0) {
-    result[i] = Number(bigint % BigInt(256));
-    bigint = bigint / BigInt(256);
-    i += 1;
-  }
-  return result;
-}
-
-// node_modules/@mysten/bcs/dist/esm/bcs-type.js
-var __typeError = (msg) => {
-  throw TypeError(msg);
-};
-var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
-var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
-var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
-var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
-var _write;
-var _serialize;
-var _schema;
-var _bytes;
-var _BcsType = class _BcsType2 {
-  constructor(options) {
-    __privateAdd(this, _write);
-    __privateAdd(this, _serialize);
-    this.name = options.name;
-    this.read = options.read;
-    this.serializedSize = options.serializedSize ?? (() => null);
-    __privateSet(this, _write, options.write);
-    __privateSet(this, _serialize, options.serialize ?? ((value, options2) => {
-      const writer = new BcsWriter({
-        initialSize: this.serializedSize(value) ?? void 0,
-        ...options2
-      });
-      __privateGet(this, _write).call(this, value, writer);
-      return writer.toBytes();
-    }));
-    this.validate = options.validate ?? (() => {
-    });
-  }
-  write(value, writer) {
-    this.validate(value);
-    __privateGet(this, _write).call(this, value, writer);
-  }
-  serialize(value, options) {
-    this.validate(value);
-    return new SerializedBcs(this, __privateGet(this, _serialize).call(this, value, options));
-  }
-  parse(bytes2) {
-    const reader = new BcsReader(bytes2);
-    return this.read(reader);
-  }
-  fromHex(hex) {
-    return this.parse(fromHex(hex));
-  }
-  fromBase58(b64) {
-    return this.parse(fromBase58(b64));
-  }
-  fromBase64(b64) {
-    return this.parse(fromBase64(b64));
-  }
-  transform({
-    name,
-    input,
-    output,
-    validate
-  }) {
-    return new _BcsType2({
-      name: name ?? this.name,
-      read: (reader) => output ? output(this.read(reader)) : this.read(reader),
-      write: (value, writer) => __privateGet(this, _write).call(this, input ? input(value) : value, writer),
-      serializedSize: (value) => this.serializedSize(input ? input(value) : value),
-      serialize: (value, options) => __privateGet(this, _serialize).call(this, input ? input(value) : value, options),
-      validate: (value) => {
-        validate?.(value);
-        this.validate(input ? input(value) : value);
-      }
-    });
-  }
-};
-_write = /* @__PURE__ */ new WeakMap();
-_serialize = /* @__PURE__ */ new WeakMap();
-var BcsType = _BcsType;
-var SERIALIZED_BCS_BRAND = Symbol.for("@mysten/serialized-bcs");
-var SerializedBcs = class {
-  constructor(type, schema) {
-    __privateAdd(this, _schema);
-    __privateAdd(this, _bytes);
-    __privateSet(this, _schema, type);
-    __privateSet(this, _bytes, schema);
-  }
-  // Used to brand SerializedBcs so that they can be identified, even between multiple copies
-  // of the @mysten/bcs package are installed
-  get [SERIALIZED_BCS_BRAND]() {
-    return true;
-  }
-  toBytes() {
-    return __privateGet(this, _bytes);
-  }
-  toHex() {
-    return toHex(__privateGet(this, _bytes));
-  }
-  toBase64() {
-    return toBase64(__privateGet(this, _bytes));
-  }
-  toBase58() {
-    return toBase58(__privateGet(this, _bytes));
-  }
-  parse() {
-    return __privateGet(this, _schema).parse(__privateGet(this, _bytes));
-  }
-};
-_schema = /* @__PURE__ */ new WeakMap();
-_bytes = /* @__PURE__ */ new WeakMap();
-function fixedSizeBcsType({
-  size,
-  ...options
-}) {
-  return new BcsType({
-    ...options,
-    serializedSize: () => size
-  });
-}
-function uIntBcsType({
-  readMethod,
-  writeMethod,
-  ...options
-}) {
-  return fixedSizeBcsType({
-    ...options,
-    read: (reader) => reader[readMethod](),
-    write: (value, writer) => writer[writeMethod](value),
-    validate: (value) => {
-      if (value < 0 || value > options.maxValue) {
-        throw new TypeError(
-          `Invalid ${options.name} value: ${value}. Expected value in range 0-${options.maxValue}`
-        );
-      }
-      options.validate?.(value);
-    }
-  });
-}
-function bigUIntBcsType({
-  readMethod,
-  writeMethod,
-  ...options
-}) {
-  return fixedSizeBcsType({
-    ...options,
-    read: (reader) => reader[readMethod](),
-    write: (value, writer) => writer[writeMethod](BigInt(value)),
-    validate: (val) => {
-      const value = BigInt(val);
-      if (value < 0 || value > options.maxValue) {
-        throw new TypeError(
-          `Invalid ${options.name} value: ${value}. Expected value in range 0-${options.maxValue}`
-        );
-      }
-      options.validate?.(value);
-    }
-  });
-}
-function dynamicSizeBcsType({
-  serialize,
-  ...options
-}) {
-  const type = new BcsType({
-    ...options,
-    serialize,
-    write: (value, writer) => {
-      for (const byte of type.serialize(value).toBytes()) {
-        writer.write8(byte);
-      }
-    }
-  });
-  return type;
-}
-function stringLikeBcsType({
-  toBytes,
-  fromBytes,
-  ...options
-}) {
-  return new BcsType({
-    ...options,
-    read: (reader) => {
-      const length = reader.readULEB();
-      const bytes2 = reader.readBytes(length);
-      return fromBytes(bytes2);
-    },
-    write: (hex, writer) => {
-      const bytes2 = toBytes(hex);
-      writer.writeULEB(bytes2.length);
-      for (let i = 0; i < bytes2.length; i++) {
-        writer.write8(bytes2[i]);
-      }
-    },
-    serialize: (value) => {
-      const bytes2 = toBytes(value);
-      const size = ulebEncode(bytes2.length);
-      const result = new Uint8Array(size.length + bytes2.length);
-      result.set(size, 0);
-      result.set(bytes2, size.length);
-      return result;
-    },
-    validate: (value) => {
-      if (typeof value !== "string") {
-        throw new TypeError(`Invalid ${options.name} value: ${value}. Expected string`);
-      }
-      options.validate?.(value);
-    }
-  });
-}
-function lazyBcsType(cb) {
-  let lazyType = null;
-  function getType() {
-    if (!lazyType) {
-      lazyType = cb();
-    }
-    return lazyType;
-  }
-  return new BcsType({
-    name: "lazy",
-    read: (data) => getType().read(data),
-    serializedSize: (value) => getType().serializedSize(value),
-    write: (value, writer) => getType().write(value, writer),
-    serialize: (value, options) => getType().serialize(value, options).toBytes()
-  });
-}
-
-// node_modules/@mysten/bcs/dist/esm/bcs.js
-var bcs = {
-  /**
-   * Creates a BcsType that can be used to read and write an 8-bit unsigned integer.
-   * @example
-   * bcs.u8().serialize(255).toBytes() // Uint8Array [ 255 ]
-   */
-  u8(options) {
-    return uIntBcsType({
-      name: "u8",
-      readMethod: "read8",
-      writeMethod: "write8",
-      size: 1,
-      maxValue: 2 ** 8 - 1,
-      ...options
-    });
-  },
-  /**
-   * Creates a BcsType that can be used to read and write a 16-bit unsigned integer.
-   * @example
-   * bcs.u16().serialize(65535).toBytes() // Uint8Array [ 255, 255 ]
-   */
-  u16(options) {
-    return uIntBcsType({
-      name: "u16",
-      readMethod: "read16",
-      writeMethod: "write16",
-      size: 2,
-      maxValue: 2 ** 16 - 1,
-      ...options
-    });
-  },
-  /**
-   * Creates a BcsType that can be used to read and write a 32-bit unsigned integer.
-   * @example
-   * bcs.u32().serialize(4294967295).toBytes() // Uint8Array [ 255, 255, 255, 255 ]
-   */
-  u32(options) {
-    return uIntBcsType({
-      name: "u32",
-      readMethod: "read32",
-      writeMethod: "write32",
-      size: 4,
-      maxValue: 2 ** 32 - 1,
-      ...options
-    });
-  },
-  /**
-   * Creates a BcsType that can be used to read and write a 64-bit unsigned integer.
-   * @example
-   * bcs.u64().serialize(1).toBytes() // Uint8Array [ 1, 0, 0, 0, 0, 0, 0, 0 ]
-   */
-  u64(options) {
-    return bigUIntBcsType({
-      name: "u64",
-      readMethod: "read64",
-      writeMethod: "write64",
-      size: 8,
-      maxValue: 2n ** 64n - 1n,
-      ...options
-    });
-  },
-  /**
-   * Creates a BcsType that can be used to read and write a 128-bit unsigned integer.
-   * @example
-   * bcs.u128().serialize(1).toBytes() // Uint8Array [ 1, ..., 0 ]
-   */
-  u128(options) {
-    return bigUIntBcsType({
-      name: "u128",
-      readMethod: "read128",
-      writeMethod: "write128",
-      size: 16,
-      maxValue: 2n ** 128n - 1n,
-      ...options
-    });
-  },
-  /**
-   * Creates a BcsType that can be used to read and write a 256-bit unsigned integer.
-   * @example
-   * bcs.u256().serialize(1).toBytes() // Uint8Array [ 1, ..., 0 ]
-   */
-  u256(options) {
-    return bigUIntBcsType({
-      name: "u256",
-      readMethod: "read256",
-      writeMethod: "write256",
-      size: 32,
-      maxValue: 2n ** 256n - 1n,
-      ...options
-    });
-  },
-  /**
-   * Creates a BcsType that can be used to read and write boolean values.
-   * @example
-   * bcs.bool().serialize(true).toBytes() // Uint8Array [ 1 ]
-   */
-  bool(options) {
-    return fixedSizeBcsType({
-      name: "bool",
-      size: 1,
-      read: (reader) => reader.read8() === 1,
-      write: (value, writer) => writer.write8(value ? 1 : 0),
-      ...options,
-      validate: (value) => {
-        options?.validate?.(value);
-        if (typeof value !== "boolean") {
-          throw new TypeError(`Expected boolean, found ${typeof value}`);
-        }
-      }
-    });
-  },
-  /**
-   * Creates a BcsType that can be used to read and write unsigned LEB encoded integers
-   * @example
-   *
-   */
-  uleb128(options) {
-    return dynamicSizeBcsType({
-      name: "uleb128",
-      read: (reader) => reader.readULEB(),
-      serialize: (value) => {
-        return Uint8Array.from(ulebEncode(value));
-      },
-      ...options
-    });
-  },
-  /**
-   * Creates a BcsType representing a fixed length byte array
-   * @param size The number of bytes this types represents
-   * @example
-   * bcs.bytes(3).serialize(new Uint8Array([1, 2, 3])).toBytes() // Uint8Array [1, 2, 3]
-   */
-  bytes(size, options) {
-    return fixedSizeBcsType({
-      name: `bytes[${size}]`,
-      size,
-      read: (reader) => reader.readBytes(size),
-      write: (value, writer) => {
-        const array = new Uint8Array(value);
-        for (let i = 0; i < size; i++) {
-          writer.write8(array[i] ?? 0);
-        }
-      },
-      ...options,
-      validate: (value) => {
-        options?.validate?.(value);
-        if (!value || typeof value !== "object" || !("length" in value)) {
-          throw new TypeError(`Expected array, found ${typeof value}`);
-        }
-        if (value.length !== size) {
-          throw new TypeError(`Expected array of length ${size}, found ${value.length}`);
-        }
-      }
-    });
-  },
-  /**
-   * Creates a BcsType representing a variable length byte array
-   *
-   * @example
-   * bcs.byteVector().serialize([1, 2, 3]).toBytes() // Uint8Array [3, 1, 2, 3]
-   */
-  byteVector(options) {
-    return new BcsType({
-      name: `bytesVector`,
-      read: (reader) => {
-        const length = reader.readULEB();
-        return reader.readBytes(length);
-      },
-      write: (value, writer) => {
-        const array = new Uint8Array(value);
-        writer.writeULEB(array.length);
-        for (let i = 0; i < array.length; i++) {
-          writer.write8(array[i] ?? 0);
-        }
-      },
-      ...options,
-      serializedSize: (value) => {
-        const length = "length" in value ? value.length : null;
-        return length == null ? null : ulebEncode(length).length + length;
-      },
-      validate: (value) => {
-        options?.validate?.(value);
-        if (!value || typeof value !== "object" || !("length" in value)) {
-          throw new TypeError(`Expected array, found ${typeof value}`);
-        }
-      }
-    });
-  },
-  /**
-   * Creates a BcsType that can ser/de string values.  Strings will be UTF-8 encoded
-   * @example
-   * bcs.string().serialize('a').toBytes() // Uint8Array [ 1, 97 ]
-   */
-  string(options) {
-    return stringLikeBcsType({
-      name: "string",
-      toBytes: (value) => new TextEncoder().encode(value),
-      fromBytes: (bytes2) => new TextDecoder().decode(bytes2),
-      ...options
-    });
-  },
-  /**
-   * Creates a BcsType that represents a fixed length array of a given type
-   * @param size The number of elements in the array
-   * @param type The BcsType of each element in the array
-   * @example
-   * bcs.fixedArray(3, bcs.u8()).serialize([1, 2, 3]).toBytes() // Uint8Array [ 1, 2, 3 ]
-   */
-  fixedArray(size, type, options) {
-    return new BcsType({
-      name: `${type.name}[${size}]`,
-      read: (reader) => {
-        const result = new Array(size);
-        for (let i = 0; i < size; i++) {
-          result[i] = type.read(reader);
-        }
-        return result;
-      },
-      write: (value, writer) => {
-        for (const item of value) {
-          type.write(item, writer);
-        }
-      },
-      ...options,
-      validate: (value) => {
-        options?.validate?.(value);
-        if (!value || typeof value !== "object" || !("length" in value)) {
-          throw new TypeError(`Expected array, found ${typeof value}`);
-        }
-        if (value.length !== size) {
-          throw new TypeError(`Expected array of length ${size}, found ${value.length}`);
-        }
-      }
-    });
-  },
-  /**
-   * Creates a BcsType representing an optional value
-   * @param type The BcsType of the optional value
-   * @example
-   * bcs.option(bcs.u8()).serialize(null).toBytes() // Uint8Array [ 0 ]
-   * bcs.option(bcs.u8()).serialize(1).toBytes() // Uint8Array [ 1, 1 ]
-   */
-  option(type) {
-    return bcs.enum(`Option<${type.name}>`, {
-      None: null,
-      Some: type
-    }).transform({
-      input: (value) => {
-        if (value == null) {
-          return { None: true };
-        }
-        return { Some: value };
-      },
-      output: (value) => {
-        if (value.$kind === "Some") {
-          return value.Some;
-        }
-        return null;
-      }
-    });
-  },
-  /**
-   * Creates a BcsType representing a variable length vector of a given type
-   * @param type The BcsType of each element in the vector
-   *
-   * @example
-   * bcs.vector(bcs.u8()).toBytes([1, 2, 3]) // Uint8Array [ 3, 1, 2, 3 ]
-   */
-  vector(type, options) {
-    return new BcsType({
-      name: `vector<${type.name}>`,
-      read: (reader) => {
-        const length = reader.readULEB();
-        const result = new Array(length);
-        for (let i = 0; i < length; i++) {
-          result[i] = type.read(reader);
-        }
-        return result;
-      },
-      write: (value, writer) => {
-        writer.writeULEB(value.length);
-        for (const item of value) {
-          type.write(item, writer);
-        }
-      },
-      ...options,
-      validate: (value) => {
-        options?.validate?.(value);
-        if (!value || typeof value !== "object" || !("length" in value)) {
-          throw new TypeError(`Expected array, found ${typeof value}`);
-        }
-      }
-    });
-  },
-  /**
-   * Creates a BcsType representing a tuple of a given set of types
-   * @param types The BcsTypes for each element in the tuple
-   *
-   * @example
-   * const tuple = bcs.tuple([bcs.u8(), bcs.string(), bcs.bool()])
-   * tuple.serialize([1, 'a', true]).toBytes() // Uint8Array [ 1, 1, 97, 1 ]
-   */
-  tuple(types, options) {
-    return new BcsType({
-      name: `(${types.map((t) => t.name).join(", ")})`,
-      serializedSize: (values) => {
-        let total = 0;
-        for (let i = 0; i < types.length; i++) {
-          const size = types[i].serializedSize(values[i]);
-          if (size == null) {
-            return null;
-          }
-          total += size;
-        }
-        return total;
-      },
-      read: (reader) => {
-        const result = [];
-        for (const type of types) {
-          result.push(type.read(reader));
-        }
-        return result;
-      },
-      write: (value, writer) => {
-        for (let i = 0; i < types.length; i++) {
-          types[i].write(value[i], writer);
-        }
-      },
-      ...options,
-      validate: (value) => {
-        options?.validate?.(value);
-        if (!Array.isArray(value)) {
-          throw new TypeError(`Expected array, found ${typeof value}`);
-        }
-        if (value.length !== types.length) {
-          throw new TypeError(`Expected array of length ${types.length}, found ${value.length}`);
-        }
-      }
-    });
-  },
-  /**
-   * Creates a BcsType representing a struct of a given set of fields
-   * @param name The name of the struct
-   * @param fields The fields of the struct. The order of the fields affects how data is serialized and deserialized
-   *
-   * @example
-   * const struct = bcs.struct('MyStruct', {
-   *  a: bcs.u8(),
-   *  b: bcs.string(),
-   * })
-   * struct.serialize({ a: 1, b: 'a' }).toBytes() // Uint8Array [ 1, 1, 97 ]
-   */
-  struct(name, fields, options) {
-    const canonicalOrder = Object.entries(fields);
-    return new BcsType({
-      name,
-      serializedSize: (values) => {
-        let total = 0;
-        for (const [field, type] of canonicalOrder) {
-          const size = type.serializedSize(values[field]);
-          if (size == null) {
-            return null;
-          }
-          total += size;
-        }
-        return total;
-      },
-      read: (reader) => {
-        const result = {};
-        for (const [field, type] of canonicalOrder) {
-          result[field] = type.read(reader);
-        }
-        return result;
-      },
-      write: (value, writer) => {
-        for (const [field, type] of canonicalOrder) {
-          type.write(value[field], writer);
-        }
-      },
-      ...options,
-      validate: (value) => {
-        options?.validate?.(value);
-        if (typeof value !== "object" || value == null) {
-          throw new TypeError(`Expected object, found ${typeof value}`);
-        }
-      }
-    });
-  },
-  /**
-   * Creates a BcsType representing an enum of a given set of options
-   * @param name The name of the enum
-   * @param values The values of the enum. The order of the values affects how data is serialized and deserialized.
-   * null can be used to represent a variant with no data.
-   *
-   * @example
-   * const enum = bcs.enum('MyEnum', {
-   *   A: bcs.u8(),
-   *   B: bcs.string(),
-   *   C: null,
-   * })
-   * enum.serialize({ A: 1 }).toBytes() // Uint8Array [ 0, 1 ]
-   * enum.serialize({ B: 'a' }).toBytes() // Uint8Array [ 1, 1, 97 ]
-   * enum.serialize({ C: true }).toBytes() // Uint8Array [ 2 ]
-   */
-  enum(name, values, options) {
-    const canonicalOrder = Object.entries(values);
-    return new BcsType({
-      name,
-      read: (reader) => {
-        const index = reader.readULEB();
-        const enumEntry = canonicalOrder[index];
-        if (!enumEntry) {
-          throw new TypeError(`Unknown value ${index} for enum ${name}`);
-        }
-        const [kind, type] = enumEntry;
-        return {
-          [kind]: type?.read(reader) ?? true,
-          $kind: kind
-        };
-      },
-      write: (value, writer) => {
-        const [name2, val] = Object.entries(value).filter(
-          ([name3]) => Object.hasOwn(values, name3)
-        )[0];
-        for (let i = 0; i < canonicalOrder.length; i++) {
-          const [optionName, optionType] = canonicalOrder[i];
-          if (optionName === name2) {
-            writer.writeULEB(i);
-            optionType?.write(val, writer);
-            return;
-          }
-        }
-      },
-      ...options,
-      validate: (value) => {
-        options?.validate?.(value);
-        if (typeof value !== "object" || value == null) {
-          throw new TypeError(`Expected object, found ${typeof value}`);
-        }
-        const keys = Object.keys(value).filter(
-          (k) => value[k] !== void 0 && Object.hasOwn(values, k)
-        );
-        if (keys.length !== 1) {
-          throw new TypeError(
-            `Expected object with one key, but found ${keys.length} for type ${name}}`
-          );
-        }
-        const [variant] = keys;
-        if (!Object.hasOwn(values, variant)) {
-          throw new TypeError(`Invalid enum variant ${variant}`);
-        }
-      }
-    });
-  },
-  /**
-   * Creates a BcsType representing a map of a given key and value type
-   * @param keyType The BcsType of the key
-   * @param valueType The BcsType of the value
-   * @example
-   * const map = bcs.map(bcs.u8(), bcs.string())
-   * map.serialize(new Map([[2, 'a']])).toBytes() // Uint8Array [ 1, 2, 1, 97 ]
-   */
-  map(keyType, valueType) {
-    return bcs.vector(bcs.tuple([keyType, valueType])).transform({
-      name: `Map<${keyType.name}, ${valueType.name}>`,
-      input: (value) => {
-        return [...value.entries()];
-      },
-      output: (value) => {
-        const result = /* @__PURE__ */ new Map();
-        for (const [key, val] of value) {
-          result.set(key, val);
-        }
-        return result;
-      }
-    });
-  },
-  /**
-   * Creates a BcsType that wraps another BcsType which is lazily evaluated. This is useful for creating recursive types.
-   * @param cb A callback that returns the BcsType
-   */
-  lazy(cb) {
-    return lazyBcsType(cb);
-  }
-};
-
 // src/sui/util.ts
+import { fromHex } from "@mysten/sui/utils";
+import { bcs } from "@mysten/sui/bcs";
 function hexToNumArray(x) {
   return Array.from(fromHex(x));
 }
@@ -7515,6 +6305,8 @@ function into_arr_bcs_vector(arr) {
 }
 
 // src/sui/types.ts
+import { fromHex as fromHex2, toHex } from "@mysten/sui/utils";
+import { bcs as bcs2 } from "@mysten/sui/bcs";
 function isTransactionArgument(arg) {
   if (!arg || typeof arg !== "object" || Array.isArray(arg)) {
     return false;
@@ -7545,7 +6337,7 @@ var Address = class _Address {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -7557,9 +6349,9 @@ var Address = class _Address {
     return args;
   }
   static get bcs() {
-    return bcs.bytes(32).transform({
+    return bcs2.bytes(32).transform({
       // To change the input type, you need to provide a type definition for the input
-      input: (val) => fromHex(val.into_value()),
+      input: (val) => fromHex2(val.into_value()),
       output: (val) => new _Address(toHex(val))
     });
   }
@@ -7594,7 +6386,7 @@ var Boolean = class _Boolean {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -7606,7 +6398,7 @@ var Boolean = class _Boolean {
     return args;
   }
   static get bcs() {
-    return bcs.bool().transform({
+    return bcs2.bool().transform({
       input: (val) => val,
       output: (val) => new _Boolean(val)
     });
@@ -7642,7 +6434,7 @@ var Ascii = class _Ascii {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -7654,7 +6446,7 @@ var Ascii = class _Ascii {
     return args;
   }
   static get bcs() {
-    return bcs.string().transform({
+    return bcs2.string().transform({
       input: (val) => val,
       output: (val) => new _Ascii(val)
     });
@@ -7701,7 +6493,7 @@ var String2 = class _String {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -7713,7 +6505,7 @@ var String2 = class _String {
     return args;
   }
   static get bcs() {
-    return bcs.string().transform({
+    return bcs2.string().transform({
       input: (val) => val,
       output: (val) => new _String(val)
     });
@@ -7749,7 +6541,7 @@ var U8 = class _U8 {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -7761,7 +6553,7 @@ var U8 = class _U8 {
     return args;
   }
   static get bcs() {
-    return bcs.u8().transform({
+    return bcs2.u8().transform({
       input: (val) => val,
       output: (val) => new _U8(val)
     });
@@ -7797,7 +6589,7 @@ var U16 = class _U16 {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -7809,7 +6601,7 @@ var U16 = class _U16 {
     return args;
   }
   static get bcs() {
-    return bcs.u16().transform({
+    return bcs2.u16().transform({
       input: (val) => val,
       output: (val) => new _U16(val)
     });
@@ -7845,7 +6637,7 @@ var U32 = class _U32 {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -7857,7 +6649,7 @@ var U32 = class _U32 {
     return args;
   }
   static get bcs() {
-    return bcs.u32().transform({
+    return bcs2.u32().transform({
       input: (val) => val,
       output: (val) => new _U32(val)
     });
@@ -7893,7 +6685,7 @@ var U64 = class _U64 {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -7905,7 +6697,7 @@ var U64 = class _U64 {
     return args;
   }
   static get bcs() {
-    return bcs.u64().transform({
+    return bcs2.u64().transform({
       input: (val) => val,
       output: (val) => {
         if (!isNaN(Number(val))) {
@@ -7952,7 +6744,7 @@ var U128 = class _U128 {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -7964,7 +6756,7 @@ var U128 = class _U128 {
     return args;
   }
   static get bcs() {
-    return bcs.u128().transform({
+    return bcs2.u128().transform({
       input: (val) => val,
       output: (val) => {
         if (!isNaN(Number(val))) {
@@ -8005,7 +6797,7 @@ var U256 = class _U256 {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -8017,7 +6809,7 @@ var U256 = class _U256 {
     return args;
   }
   static get bcs() {
-    return bcs.u256().transform({
+    return bcs2.u256().transform({
       input: (val) => val,
       output: (val) => {
         if (!isNaN(Number(val))) {
@@ -8038,6 +6830,7 @@ var U256 = class _U256 {
 // src/sui/clone.ts
 import { getFullnodeUrl, SuiClient } from "@mysten/sui/client";
 import { stringify as toml_stringify2 } from "smol-toml";
+import { fromBase64 } from "@mysten/sui/utils";
 import fs6 from "fs-extra";
 async function clone_chain_move_module(move_gen2, network, module_objectid, package_path) {
   let out = package_path + "/deps";
@@ -8064,9 +6857,9 @@ async function clone_chain_move_module(move_gen2, network, module_objectid, pack
     for (var i = 0; i < results.length; i++) {
       let r = results[i];
       if (r.data) {
-        let bcs2 = r.data.bcs;
+        let bcs4 = r.data.bcs;
         let objectid = r.data.objectId;
-        let moduleMap = bcs2.moduleMap;
+        let moduleMap = bcs4.moduleMap;
         for (var module_name in moduleMap) {
           let module_base64 = moduleMap[module_name];
           move_gen2.run_module_gen(out, objectid, new Uint8Array(fromBase64(module_base64)));
@@ -8102,8 +6895,8 @@ async function get_online_packages(network, objectid, result_ids, package_path) 
     result_ids.push(objectid);
   }
   if (result && result.data?.bcs) {
-    let bcs2 = result.data.bcs;
-    let linkageTable = bcs2.linkageTable;
+    let bcs4 = result.data.bcs;
+    let linkageTable = bcs4.linkageTable;
     let deps_modules = [];
     for (var package_id in linkageTable) {
       let upgraded_id = linkageTable[package_id].upgraded_id;
@@ -8193,6 +6986,7 @@ function debug_move_function(wasm_runtime, code_helper, package_path, module_nam
 
 // src/sui/setup.ts
 import { readDirDeepSync } from "read-dir-deep";
+import { fromBase64 as fromBase642 } from "@mysten/sui/utils";
 import { parse as parse3 } from "smol-toml";
 import fs8 from "fs-extra";
 function setup(runtime, package_path) {
@@ -8211,7 +7005,7 @@ function setup(runtime, package_path) {
           if (bcs_json_data) {
             var bcs_json = JSON.parse(bcs_json_data);
             for (var bcs_module in bcs_json) {
-              runtime.publish_module(fromBase64(bcs_json[bcs_module]));
+              runtime.publish_module(fromBase642(bcs_json[bcs_module]));
             }
           }
         }
@@ -8269,7 +7063,7 @@ function setup_move(runtime, package_path, include_deps) {
             if (bcs_json_data) {
               var bcs_json = JSON.parse(bcs_json_data);
               for (var bcs_module in bcs_json) {
-                runtime.register_module(bcs_json_module, fromBase64(bcs_json[bcs_module]));
+                runtime.register_module(bcs_json_module, fromBase642(bcs_json[bcs_module]));
               }
             }
           }
@@ -8319,6 +7113,7 @@ import { getFullnodeUrl as getFullnodeUrl2, SuiClient as SuiClient2 } from "@mys
 import { Transaction, UpgradePolicy } from "@mysten/sui/transactions";
 import { decodeSuiPrivateKey } from "@mysten/sui/cryptography";
 import { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519";
+import { bcs as bcs3 } from "@mysten/sui/bcs";
 import shell2 from "shelljs";
 import fs9 from "fs-extra";
 async function upgrade_move_module(sui_bin_path, package_path, network, old_package_id, upgrade_cap_id) {
@@ -8337,7 +7132,7 @@ async function upgrade_move_module(sui_bin_path, package_path, network, old_pack
     arguments: [
       tx.object(upgrade_cap_id),
       tx.pure.u8(UpgradePolicy.COMPATIBLE),
-      tx.pure(bcs.byteVector().serialize(new Uint8Array(digest)).toBytes())
+      tx.pure(bcs3.byteVector().serialize(new Uint8Array(digest)).toBytes())
     ]
   });
   const receipt = tx.upgrade({
@@ -8531,8 +7326,3 @@ export {
   to_arr_value,
   upgrade_move_module
 };
-/*! Bundled license information:
-
-@scure/base/lib/esm/index.js:
-  (*! scure-base - MIT License (c) 2022 Paul Miller (paulmillr.com) *)
-*/

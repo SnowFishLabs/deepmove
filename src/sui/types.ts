@@ -1,5 +1,6 @@
 import { type TransactionArgument } from "@mysten/sui/transactions";
-import { bcs, fromHex, toHex } from "@mysten/bcs";
+import { fromHex, toHex } from "@mysten/sui/utils";
+import { bcs } from "@mysten/sui/bcs";
 
 export type Network = 'mainnet' | 'testnet' | 'devnet' | 'localnet';
 

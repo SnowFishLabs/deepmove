@@ -3,7 +3,7 @@ import { Transaction, UpgradePolicy } from '@mysten/sui/transactions';
 import { decodeSuiPrivateKey } from '@mysten/sui/cryptography';
 import { Ed25519Keypair } from '@mysten/sui/keypairs/ed25519';
 import { Network, SuiPublishResult } from './types';
-import { bcs } from '@mysten/bcs';
+import { bcs } from '@mysten/sui/bcs';
 import shell from 'shelljs';
 import fs from 'fs-extra';
 

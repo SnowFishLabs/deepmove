@@ -2,6 +2,7 @@ import * as _mysten_sui_client from '@mysten/sui/client';
 import { SuiClient } from '@mysten/sui/client';
 import { TestContext } from 'vitest';
 import * as _mysten_bcs from '@mysten/bcs';
+import * as _mysten_sui_bcs from '@mysten/sui/bcs';
 import { TransactionArgument } from '@mysten/sui/transactions';
 
 /* tslint:disable */
@@ -133,16 +134,16 @@ declare class Address implements StructClass {
     static $type(): string;
     constructor(value: string);
     from(v: Address): void;
-    serialize_bcs(): _mysten_bcs.BcsType<Address, Address>;
-    return_bcs(): _mysten_bcs.BcsType<Address, Address>;
+    serialize_bcs(): _mysten_sui_bcs.BcsType<Address, Address>;
+    return_bcs(): _mysten_sui_bcs.BcsType<Address, Address>;
     into_value(): string;
     from_bcs_t(bytes: any): Address;
     from_bcs_vector_t(bytes: any): Address[];
     serialize(arg: any): _mysten_bcs.SerializedBcs<Address, Address>;
     from_bcs(arg: Address): Address;
     from_bcs_vector(args: Address[]): Address[];
-    static get bcs(): _mysten_bcs.BcsType<Address, Address>;
-    get_bcs(): _mysten_bcs.BcsType<Address, Address>;
+    static get bcs(): _mysten_sui_bcs.BcsType<Address, Address>;
+    get_bcs(): _mysten_sui_bcs.BcsType<Address, Address>;
     get_value(): string;
 }
 declare class Boolean implements StructClass {
@@ -151,16 +152,16 @@ declare class Boolean implements StructClass {
     static $type(): string;
     constructor(value: boolean);
     from(v: Boolean): void;
-    serialize_bcs(): _mysten_bcs.BcsType<Boolean, boolean>;
-    return_bcs(): _mysten_bcs.BcsType<Boolean, boolean>;
+    serialize_bcs(): _mysten_sui_bcs.BcsType<Boolean, boolean>;
+    return_bcs(): _mysten_sui_bcs.BcsType<Boolean, boolean>;
     into_value(): boolean;
     from_bcs_t(bytes: any): Boolean;
     from_bcs_vector_t(bytes: any): Boolean[];
     serialize(arg: any): _mysten_bcs.SerializedBcs<Boolean, boolean>;
     from_bcs(arg: Boolean): Boolean;
     from_bcs_vector(args: Boolean[]): Boolean[];
-    static get bcs(): _mysten_bcs.BcsType<Boolean, boolean>;
-    get_bcs(): _mysten_bcs.BcsType<Boolean, boolean>;
+    static get bcs(): _mysten_sui_bcs.BcsType<Boolean, boolean>;
+    get_bcs(): _mysten_sui_bcs.BcsType<Boolean, boolean>;
     get_value(): boolean;
 }
 declare class Ascii implements StructClass {
@@ -169,16 +170,16 @@ declare class Ascii implements StructClass {
     static $type(): string;
     constructor(value: string);
     from(v: Ascii): void;
-    serialize_bcs(): _mysten_bcs.BcsType<Ascii, string>;
-    return_bcs(): _mysten_bcs.BcsType<Ascii, string>;
+    serialize_bcs(): _mysten_sui_bcs.BcsType<Ascii, string>;
+    return_bcs(): _mysten_sui_bcs.BcsType<Ascii, string>;
     into_value(): string;
     from_bcs_t(bytes: any): Ascii;
     from_bcs_vector_t(bytes: any): Ascii[];
     serialize(arg: any): _mysten_bcs.SerializedBcs<Ascii, string>;
     from_bcs(arg: Ascii): Ascii;
     from_bcs_vector(args: Ascii[]): Ascii[];
-    static get bcs(): _mysten_bcs.BcsType<Ascii, string>;
-    get_bcs(): _mysten_bcs.BcsType<Ascii, string>;
+    static get bcs(): _mysten_sui_bcs.BcsType<Ascii, string>;
+    get_bcs(): _mysten_sui_bcs.BcsType<Ascii, string>;
     get_value(): string;
 }
 declare class String implements StructClass {
@@ -189,16 +190,16 @@ declare class String implements StructClass {
     into_uint8array(): Uint8Array;
     into_u8array(): U8[];
     from(v: String): void;
-    serialize_bcs(): _mysten_bcs.BcsType<String, string>;
-    return_bcs(): _mysten_bcs.BcsType<String, string>;
+    serialize_bcs(): _mysten_sui_bcs.BcsType<String, string>;
+    return_bcs(): _mysten_sui_bcs.BcsType<String, string>;
     into_value(): string;
     from_bcs_t(bytes: any): String;
     from_bcs_vector_t(bytes: any): String[];
     serialize(arg: any): _mysten_bcs.SerializedBcs<String, string>;
     from_bcs(arg: String): String;
     from_bcs_vector(args: String[]): String[];
-    static get bcs(): _mysten_bcs.BcsType<String, string>;
-    get_bcs(): _mysten_bcs.BcsType<String, string>;
+    static get bcs(): _mysten_sui_bcs.BcsType<String, string>;
+    get_bcs(): _mysten_sui_bcs.BcsType<String, string>;
     get_value(): string;
 }
 declare class U8 implements StructClass {
@@ -207,16 +208,16 @@ declare class U8 implements StructClass {
     static $type(): string;
     constructor(value: number);
     from(v: U8): void;
-    serialize_bcs(): _mysten_bcs.BcsType<U8, number>;
-    return_bcs(): _mysten_bcs.BcsType<U8, number>;
+    serialize_bcs(): _mysten_sui_bcs.BcsType<U8, number>;
+    return_bcs(): _mysten_sui_bcs.BcsType<U8, number>;
     into_value(): number;
     from_bcs_t(bytes: any): U8;
     from_bcs_vector_t(bytes: any): U8[];
     serialize(arg: any): _mysten_bcs.SerializedBcs<U8, number>;
     from_bcs(arg: U8): U8;
     from_bcs_vector(args: U8[]): U8[];
-    static get bcs(): _mysten_bcs.BcsType<U8, number>;
-    get_bcs(): _mysten_bcs.BcsType<U8, number>;
+    static get bcs(): _mysten_sui_bcs.BcsType<U8, number>;
+    get_bcs(): _mysten_sui_bcs.BcsType<U8, number>;
     get_value(): number;
 }
 declare class U16 implements StructClass {
@@ -225,16 +226,16 @@ declare class U16 implements StructClass {
     static $type(): string;
     constructor(value: number);
     from(v: U16): void;
-    serialize_bcs(): _mysten_bcs.BcsType<U16, number>;
-    return_bcs(): _mysten_bcs.BcsType<U16, number>;
+    serialize_bcs(): _mysten_sui_bcs.BcsType<U16, number>;
+    return_bcs(): _mysten_sui_bcs.BcsType<U16, number>;
     into_value(): number;
     from_bcs_t(bytes: any): any;
     from_bcs_vector_t(bytes: any): U16[];
     serialize(arg: any): _mysten_bcs.SerializedBcs<U16, number>;
     from_bcs(arg: any): any;
     from_bcs_vector(args: U16[]): U16[];
-    static get bcs(): _mysten_bcs.BcsType<U16, number>;
-    get_bcs(): _mysten_bcs.BcsType<U16, number>;
+    static get bcs(): _mysten_sui_bcs.BcsType<U16, number>;
+    get_bcs(): _mysten_sui_bcs.BcsType<U16, number>;
     get_value(): number;
 }
 declare class U32 implements StructClass {
@@ -243,16 +244,16 @@ declare class U32 implements StructClass {
     static $type(): string;
     constructor(value: number);
     from(v: U32): void;
-    serialize_bcs(): _mysten_bcs.BcsType<U32, number>;
-    return_bcs(): _mysten_bcs.BcsType<U32, number>;
+    serialize_bcs(): _mysten_sui_bcs.BcsType<U32, number>;
+    return_bcs(): _mysten_sui_bcs.BcsType<U32, number>;
     into_value(): number;
     from_bcs_t(bytes: any): U32;
     from_bcs_vector_t(bytes: any): U32[];
     serialize(arg: any): _mysten_bcs.SerializedBcs<U32, number>;
     from_bcs(arg: U32): U32;
     from_bcs_vector(args: U32[]): U32[];
-    static get bcs(): _mysten_bcs.BcsType<U32, number>;
-    get_bcs(): _mysten_bcs.BcsType<U32, number>;
+    static get bcs(): _mysten_sui_bcs.BcsType<U32, number>;
+    get_bcs(): _mysten_sui_bcs.BcsType<U32, number>;
     get_value(): number;
 }
 declare class U64 implements StructClass {
@@ -261,16 +262,16 @@ declare class U64 implements StructClass {
     static $type(): string;
     constructor(value: string | number | bigint);
     from(v: U64): void;
-    serialize_bcs(): _mysten_bcs.BcsType<U64, string | number | bigint>;
-    return_bcs(): _mysten_bcs.BcsType<U64, string | number | bigint>;
+    serialize_bcs(): _mysten_sui_bcs.BcsType<U64, string | number | bigint>;
+    return_bcs(): _mysten_sui_bcs.BcsType<U64, string | number | bigint>;
     into_value(): string | number | bigint;
     from_bcs_t(bytes: any): U64;
     from_bcs_vector_t(bytes: any): U64[];
     serialize(arg: any): _mysten_bcs.SerializedBcs<U64, string | number | bigint>;
     from_bcs(arg: U64): U64;
     from_bcs_vector(args: U64[]): U64[];
-    static get bcs(): _mysten_bcs.BcsType<U64, string | number | bigint>;
-    get_bcs(): _mysten_bcs.BcsType<U64, string | number | bigint>;
+    static get bcs(): _mysten_sui_bcs.BcsType<U64, string | number | bigint>;
+    get_bcs(): _mysten_sui_bcs.BcsType<U64, string | number | bigint>;
     get_value(): string | number | bigint;
     static v1_bcs(v: U64[]): U64;
     static v2_bcs(v: U64[][]): U64;
@@ -281,16 +282,16 @@ declare class U128 implements StructClass {
     static $type(): string;
     constructor(value: string | number | bigint);
     from(v: U128): void;
-    serialize_bcs(): _mysten_bcs.BcsType<U128, string | number | bigint>;
-    return_bcs(): _mysten_bcs.BcsType<U128, string | number | bigint>;
+    serialize_bcs(): _mysten_sui_bcs.BcsType<U128, string | number | bigint>;
+    return_bcs(): _mysten_sui_bcs.BcsType<U128, string | number | bigint>;
     into_value(): string | number | bigint;
     from_bcs_t(bytes: any): U128;
     from_bcs_vector_t(bytes: any): U128[];
     serialize(arg: any): _mysten_bcs.SerializedBcs<U128, string | number | bigint>;
     from_bcs(arg: U128): U128;
     from_bcs_vector(args: U128[]): U128[];
-    static get bcs(): _mysten_bcs.BcsType<U128, string | number | bigint>;
-    get_bcs(): _mysten_bcs.BcsType<U128, string | number | bigint>;
+    static get bcs(): _mysten_sui_bcs.BcsType<U128, string | number | bigint>;
+    get_bcs(): _mysten_sui_bcs.BcsType<U128, string | number | bigint>;
     get_value(): string | number | bigint;
 }
 declare class U256 implements StructClass {
@@ -299,16 +300,16 @@ declare class U256 implements StructClass {
     static $type(): string;
     constructor(value: string | number | bigint);
     from(v: U256): void;
-    serialize_bcs(): _mysten_bcs.BcsType<U256, string | number | bigint>;
-    return_bcs(): _mysten_bcs.BcsType<U256, string | number | bigint>;
+    serialize_bcs(): _mysten_sui_bcs.BcsType<U256, string | number | bigint>;
+    return_bcs(): _mysten_sui_bcs.BcsType<U256, string | number | bigint>;
     into_value(): string | number | bigint;
     from_bcs_t(bytes: any): U256;
     from_bcs_vector_t(bytes: any): U256[];
     serialize(arg: any): _mysten_bcs.SerializedBcs<U256, string | number | bigint>;
     from_bcs(arg: U256): U256;
     from_bcs_vector(args: U256[]): U256[];
-    static get bcs(): _mysten_bcs.BcsType<U256, string | number | bigint>;
-    get_bcs(): _mysten_bcs.BcsType<U256, string | number | bigint>;
+    static get bcs(): _mysten_sui_bcs.BcsType<U256, string | number | bigint>;
+    get_bcs(): _mysten_sui_bcs.BcsType<U256, string | number | bigint>;
     get_value(): string | number | bigint;
 }
 

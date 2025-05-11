@@ -6890,8 +6890,6 @@ function into_arr_bcs_vector(arr) {
 }
 
 // src/aptos/types.ts
-import { bcs as bcs2 } from "@mysten/sui/bcs";
-import { fromHex as fromHex2, toHex as toHex2 } from "@mysten/sui/utils";
 var Signer = class _Signer {
   constructor(value) {
     this.$type = "signer";
@@ -6916,7 +6914,7 @@ var Signer = class _Signer {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -6930,15 +6928,15 @@ var Signer = class _Signer {
   static get bcs() {
     let wasm3 = get_wasm();
     if (wasm3.serialized_signer) {
-      return bcs2.bytes(33).transform({
+      return bcs.bytes(33).transform({
         input: (val) => wasm3.serialized_signer(val.into_value()).Raw[0],
-        output: (val) => new _Signer(toHex2(val))
+        output: (val) => new _Signer(toHex(val))
       });
     } else {
-      return bcs2.bytes(32).transform({
+      return bcs.bytes(32).transform({
         // To change the input type, you need to provide a type definition for the input
-        input: (val) => fromHex2(val.into_value()),
-        output: (val) => new _Signer(toHex2(val))
+        input: (val) => fromHex(val.into_value()),
+        output: (val) => new _Signer(toHex(val))
       });
     }
   }
@@ -6973,7 +6971,7 @@ var Address = class _Address {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -6985,10 +6983,10 @@ var Address = class _Address {
     return args;
   }
   static get bcs() {
-    return bcs2.bytes(32).transform({
+    return bcs.bytes(32).transform({
       // To change the input type, you need to provide a type definition for the input
-      input: (val) => fromHex2(val.into_value()),
-      output: (val) => new _Address(toHex2(val))
+      input: (val) => fromHex(val.into_value()),
+      output: (val) => new _Address(toHex(val))
     });
   }
   get_bcs() {
@@ -7022,7 +7020,7 @@ var Boolean = class _Boolean {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -7034,7 +7032,7 @@ var Boolean = class _Boolean {
     return args;
   }
   static get bcs() {
-    return bcs2.bool().transform({
+    return bcs.bool().transform({
       input: (val) => val,
       output: (val) => new _Boolean(val)
     });
@@ -7070,7 +7068,7 @@ var Ascii = class _Ascii {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -7082,7 +7080,7 @@ var Ascii = class _Ascii {
     return args;
   }
   static get bcs() {
-    return bcs2.string().transform({
+    return bcs.string().transform({
       input: (val) => val,
       output: (val) => new _Ascii(val)
     });
@@ -7129,7 +7127,7 @@ var String2 = class _String {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -7141,7 +7139,7 @@ var String2 = class _String {
     return args;
   }
   static get bcs() {
-    return bcs2.string().transform({
+    return bcs.string().transform({
       input: (val) => val,
       output: (val) => new _String(val)
     });
@@ -7177,7 +7175,7 @@ var U8 = class _U8 {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -7189,7 +7187,7 @@ var U8 = class _U8 {
     return args;
   }
   static get bcs() {
-    return bcs2.u8().transform({
+    return bcs.u8().transform({
       input: (val) => val,
       output: (val) => new _U8(val)
     });
@@ -7225,7 +7223,7 @@ var U16 = class _U16 {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -7237,7 +7235,7 @@ var U16 = class _U16 {
     return args;
   }
   static get bcs() {
-    return bcs2.u16().transform({
+    return bcs.u16().transform({
       input: (val) => val,
       output: (val) => new _U16(val)
     });
@@ -7273,7 +7271,7 @@ var U32 = class _U32 {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -7285,7 +7283,7 @@ var U32 = class _U32 {
     return args;
   }
   static get bcs() {
-    return bcs2.u32().transform({
+    return bcs.u32().transform({
       input: (val) => val,
       output: (val) => new _U32(val)
     });
@@ -7321,7 +7319,7 @@ var U64 = class _U64 {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -7333,7 +7331,7 @@ var U64 = class _U64 {
     return args;
   }
   static get bcs() {
-    return bcs2.u64().transform({
+    return bcs.u64().transform({
       input: (val) => val,
       output: (val) => {
         if (!isNaN(Number(val))) {
@@ -7380,7 +7378,7 @@ var U128 = class _U128 {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -7392,7 +7390,7 @@ var U128 = class _U128 {
     return args;
   }
   static get bcs() {
-    return bcs2.u128().transform({
+    return bcs.u128().transform({
       input: (val) => val,
       output: (val) => {
         if (!isNaN(Number(val))) {
@@ -7433,7 +7431,7 @@ var U256 = class _U256 {
     return this.from_bcs(this.get_bcs().parse(bytes2));
   }
   from_bcs_vector_t(bytes2) {
-    return this.from_bcs_vector(bcs2.vector(this.get_bcs()).parse(bytes2));
+    return this.from_bcs_vector(bcs.vector(this.get_bcs()).parse(bytes2));
   }
   serialize(arg) {
     return this.get_bcs().serialize(arg);
@@ -7445,7 +7443,7 @@ var U256 = class _U256 {
     return args;
   }
   static get bcs() {
-    return bcs2.u256().transform({
+    return bcs.u256().transform({
       input: (val) => val,
       output: (val) => {
         if (!isNaN(Number(val))) {
@@ -7481,11 +7479,11 @@ async function clone_chain_move_module(move_gen2, network, module_objectid, pack
     let modules = object_modules[objectid];
     let module_bcs = {};
     modules.forEach((object_module) => {
-      let bcs3 = object_module.bytecode;
-      move_gen2.run_module_gen(out, objectid, new Uint8Array(fromHex(bcs3)));
+      let bcs2 = object_module.bytecode;
+      move_gen2.run_module_gen(out, objectid, new Uint8Array(fromHex(bcs2)));
       let module_name = object_module.abi?.name;
       if (module_name) {
-        module_bcs[module_name] = bcs3;
+        module_bcs[module_name] = bcs2;
       }
       console.log(`Disassemble move bytecodes of ${objectid} ${object_module.abi?.name} into move interfaces`);
     });
@@ -7517,8 +7515,8 @@ async function get_online_packages(move_gen2, network, objectid, object_modules,
   dependencies_modules[objectid] = true;
   for (var i = 0; i < modules.length; i++) {
     let module2 = modules[i];
-    let bcs3 = module2.bytecode;
-    let deps_string = move_gen2.get_module_dependencies(new Uint8Array(fromHex(bcs3)));
+    let bcs2 = module2.bytecode;
+    let deps_string = move_gen2.get_module_dependencies(new Uint8Array(fromHex(bcs2)));
     let deps = JSON.parse(deps_string);
     deps.forEach(function(dep) {
       if (dep.length > 10) {
@@ -7575,7 +7573,6 @@ function gen_move_toml(deps_modules, out, objectId) {
 
 // src/aptos/setup.ts
 import { readDirDeepSync } from "read-dir-deep";
-import { fromHex as fromHex3 } from "@mysten/sui/utils";
 import { parse as parse2 } from "smol-toml";
 import fs7 from "fs-extra";
 function setup(runtime, package_path) {
@@ -7594,7 +7591,7 @@ function setup(runtime, package_path) {
           if (bcs_json_data) {
             var bcs_json = JSON.parse(bcs_json_data);
             for (var bcs_module in bcs_json) {
-              runtime.publish_module(fromHex3(bcs_json[bcs_module]));
+              runtime.publish_module(fromHex(bcs_json[bcs_module]));
             }
           }
         }
@@ -7649,7 +7646,7 @@ function setup_move(runtime, package_path, include_deps) {
             if (bcs_json_data) {
               var bcs_json = JSON.parse(bcs_json_data);
               for (var bcs_module in bcs_json) {
-                runtime.register_module(bcs_json_module, fromHex3(bcs_json[bcs_module]));
+                runtime.register_module(bcs_json_module, fromHex(bcs_json[bcs_module]));
               }
             }
           }

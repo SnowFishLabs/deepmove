@@ -1,7 +1,7 @@
 import { getFullnodeUrl, SuiClient } from '@mysten/sui/client';
 import { stringify as toml_stringify } from 'smol-toml';
 import { MoveGen } from './wasm/pkg/sui_wasm';
-import { fromBase64 } from '@mysten/bcs';
+import { fromBase64 } from '@mysten/sui/utils';
 import { Network } from './sui_wasm';
 import fs from 'fs-extra';
 
