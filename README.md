@@ -3,19 +3,19 @@
 DeepMove is a smart contract development toolchain for Move Developers.
 
 ## Core Features:
-🚀: Wasm-based local Move development environment
-The efficiency of contract unit testing is significantly improved. 
-It also supports the output of Gas reports, making contract Gas optimization more convenient.
-🦄: Professional Move development pipeline
-It includes all-round optimization of steps such as dependency update, compilation, testing, release, and upgrade.
-💼: Automated Move TypeScript binding
-It provides a development experience for dapp in TypeScript that is as seamless as native Move.
-👟: Support for Move-based blockchains
-The development process and experience are the same for Sui and Aptos.
-🌳: Comprehensive Move debugging
-It supports single-step debugging (for Sui) and source code location for Move VM error messages.
-✨: Production Ready
-deepmove passes all feature coverage tests
+🚀: Wasm-based local Move development environment  
+The efficiency of contract unit testing is significantly improved.   
+It also supports the output of Gas reports, making contract Gas optimization more convenient.  
+🦄: Professional Move development pipeline  
+It includes all-round optimization of steps such as dependency update, compilation, testing, release, and upgrade.  
+💼: Automated Move TypeScript binding  
+It provides a development experience for dapp in TypeScript that is as seamless as native Move.  
+👟: Support for Move-based blockchains  
+The development process and experience are the same for Sui and Aptos.  
+🌳: Comprehensive Move debugging  
+It supports single-step debugging (for Sui) and source code location for Move VM error messages.  
+✨: Production Ready  
+deepmove passes all feature coverage tests  
 
 ## More about DeepMove
 * Official site and documents [https://deepmove.tech/](https://deepmove.tech/)  
