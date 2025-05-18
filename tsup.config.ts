@@ -13,11 +13,4 @@ export default defineConfig([{
   format: ['cjs', 'esm'],
   outDir: 'wasm/aptos-wasm/dist'
 }
-// , {
-//   entry: ['./src/deepmove/deepmove_wasm.ts'],
-//   clean: true,
-//   dts: true,
-//   format: ['cjs', 'esm'],
-//   outDir: 'wasm/deepmove-wasm/dist'
-// }
 ])
