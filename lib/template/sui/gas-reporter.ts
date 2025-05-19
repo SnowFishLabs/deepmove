@@ -21,10 +21,6 @@ export default class GasReporter extends DefaultReporter {
   }
 
   printTask(task: RunnerTask): void {
-    if (this.isTTY) {
-      return super.printTask(task)
-    }
-
     // test title
     if (('filepath' in task)) {
       const tests = getTests(task)
