@@ -4802,7 +4802,7 @@ var AptosWasm = class _AptosWasm {
       var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
       var r3 = getDataViewMemory0().getInt32(retptr + 4 * 3, true);
       if (r3) {
-        throw takeObject(r2);
+        throw new Error(takeObject(r2));
       }
       var v6 = getArrayJsValueFromWasm0(r0, r1).slice();
       wasm.__wbindgen_free(r0, r1 * 4, 4);

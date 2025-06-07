@@ -5564,7 +5564,7 @@ var SuiWasm = class _SuiWasm {
     const len4 = WASM_VECTOR_LEN;
     const ret = wasm.suiwasm_call_return_bcs(this.__wbg_ptr, ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, ptr4, len4);
     if (ret[3]) {
-      throw takeFromExternrefTable0(ret[2]);
+      throw new Error(takeFromExternrefTable0(ret[2]));
     }
     var v6 = getArrayJsValueFromWasm0(ret[0], ret[1]).slice();
     wasm.__wbindgen_free(ret[0], ret[1] * 4, 4);
