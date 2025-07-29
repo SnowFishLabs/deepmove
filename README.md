@@ -1,6 +1,6 @@
 # DeepMove
 
-DeepMove is a smart contract development toolchain for Move Developers.
+DeepMove is a smart contract development toolchain for Aptos Move Developers.
 
 ## Core Features:
 🚀: Wasm-based local Move development environment  
@@ -13,11 +13,8 @@ It includes all-round optimization of steps such as dependency update, compilati
 💼: Automated Move TypeScript binding  
 It provides a development experience for dapp in TypeScript that is as seamless as native Move.  
 
-👟: Support for Move-based blockchains  
-The development process and experience are the same for Sui and Aptos.  
-
 🌳: Comprehensive Move debugging  
-It supports single-step debugging (for Sui) and source code location for Move VM error messages.  
+It supports source code location for Move VM error messages.  
 
 ✨: Production Ready  
 deepmove passes all feature coverage tests  
